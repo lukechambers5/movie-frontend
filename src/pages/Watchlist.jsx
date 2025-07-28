@@ -1,15 +1,30 @@
 import React, { useEffect, useState, useContext } from "react";
 import api from "../services/api";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Watchlist() {
-  const { authenticated, logout } = useContext(AuthContext);
+  const { authenticated } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
 
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newTitle, setNewTitle] = useState("");
-  const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [addingId, setAddingId] = useState(null);
+  const [expandedMovieId, setExpandedMovieId] = useState(null);
+  console.log("authenticated:", authenticated, "| loading:", loading);
+
+  useEffect(() => {
+    if (!loading && !authenticated) {
+      navigate("/login");
+    }
+  }, [authenticated, loading, navigate]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -29,22 +44,45 @@ export default function Watchlist() {
     fetchWatchlist();
   }, [authenticated]);
 
-  async function handleAddMovie(e) {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (query.trim().length === 0) {
+        setSearchResults([]);
+        return;
+      }
 
+      try {
+        setSearching(true);
+        const res = await api.get("/watchlist/search", {
+          params: { title: query.trim() },
+        });
+        const filtered = res.data.filter((movie) => movie.poster_path);
+        setSearchResults(filtered);
+
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [query]);
+
+  async function handleAddMovie(movieId) {
     try {
-      setAdding(true);
+      setAddingId(movieId);
       await api.post("/watchlist", null, {
-        params: { title: newTitle.trim() },
+        params: { movieId },
       });
-      setNewTitle("");
+      setQuery("");
+      setSearchResults([]);
       const res = await api.get("/watchlist");
       setMovies(res.data);
     } catch {
       alert("Failed to add movie.");
     } finally {
-      setAdding(false);
+      setAddingId(null);
     }
   }
 
@@ -63,34 +101,55 @@ export default function Watchlist() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">🎬 Your Watchlist</h1>
-        <button
-          onClick={logout}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md transition"
-        >
-          Logout
-        </button>
-      </div>
-
-      <form onSubmit={handleAddMovie} className="flex justify-center mb-6">
+      {/* Search bar */}
+      <div className="flex flex-col mb-6 items-center">
         <input
           type="text"
-          placeholder="Search by title..."
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          disabled={adding}
-          className="px-4 py-2 border rounded-l-md w-64 focus:outline-none focus:ring"
+          placeholder="Search for a movie..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="px-4 py-2 border rounded-md w-72 focus:outline-none focus:ring mb-2"
         />
-        <button
-          type="submit"
-          disabled={adding || !newTitle.trim()}
-          className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {adding ? "Adding..." : "Add"}
-        </button>
-      </form>
+        {searching && <p className="text-sm text-gray-500">Searching...</p>}
+        {searchResults.length > 0 && (
+          <div className="w-full max-w-xl border rounded-md shadow-sm bg-white mt-2">
+            {searchResults.map((movie) => (
+              <div
+                key={movie.id}
+                className="flex items-center gap-4 p-3 border-b hover:bg-gray-50 transition cursor-pointer"
+                onClick={() => handleAddMovie(movie.id)}
+              >
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w92${movie.poster_path}`
+                      : "https://via.placeholder.com/92x138?text=No+Image"
+                  }
+                  alt={movie.title}
+                  className="w-16 h-24 object-cover rounded"
+                />
+                <div className="flex-1">
+                  <p className="font-semibold">{movie.title}</p>
+                  <p className="text-sm text-gray-500">
+                    {movie.release_date
+                      ? new Date(movie.release_date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Unknown release date"}
+                  </p>
+                  {addingId === movie.id && (
+                    <p className="text-blue-600 text-sm mt-1">Adding...</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
+      {/* Watchlist display */}
       {movies.length === 0 ? (
         <p className="text-center text-gray-500">Your watchlist is empty.</p>
       ) : (
@@ -98,13 +157,24 @@ export default function Watchlist() {
           {movies.map((movie) => (
             <div
               key={movie.movieId}
-              className="bg-white rounded-xl shadow-md overflow-hidden border hover:shadow-lg transition"
+              className="relative bg-white rounded-xl shadow-md overflow-hidden border transition transform hover:scale-105 cursor-pointer"
+              onClick={() =>
+                setExpandedMovieId((prev) => (prev === movie.movieId ? null : movie.movieId))
+              }
+
             >
               <img
                 src={movie.thumbnailUrl || movie.posterUrl}
                 alt={movie.title}
-                className="w-full h-64 object-cover"
+                className="w-full h-450px] object-cover object-top"
               />
+
+              {expandedMovieId === movie.movieId && (
+                <div className="p-4 border-t bg-gray-50 text-sm text-gray-700">
+                  <p><strong>Overview:</strong> {movie.overview || "No overview available."}</p>
+                </div>
+              )}
+
               <div className="p-4">
                 <h2 className="text-xl font-semibold">{movie.title}</h2>
                 <p className="text-gray-600 text-sm mb-1">
@@ -114,19 +184,27 @@ export default function Watchlist() {
                   <strong>Actors:</strong> {movie.actors}
                 </p>
                 <p className="text-gray-600 text-sm mb-1">
-                  <strong>Released:</strong> {movie.releaseDate}
+                  <strong>Released:</strong>{" "}
+                  {movie.releaseDate
+                    ? new Date(movie.releaseDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Unknown"}
                 </p>
                 <p className="text-gray-600 text-sm mb-1">
-                  <strong>Popularity:</strong> {movie.popularityScore}
-                </p>
-                <p className="text-gray-600 text-sm mb-4">
-                  <strong>Tier:</strong> {movie.actorClassification}
+                  <strong>Rating:</strong> {movie.popularityScore.toFixed(1)}/10
                 </p>
                 <button
-                  onClick={() => handleDelete(movie.movieId)}
-                  className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    handleDelete(movie.movieId);
+                  }}
+                  className="absolute top-2 right-2 text-white bg-red-500 rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 z-10 shadow"
+                  title="Remove"
                 >
-                  Remove
+                  &times;
                 </button>
               </div>
             </div>

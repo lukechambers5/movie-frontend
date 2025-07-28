@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import PosterSlider from '../components/PosterSlider';
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -16,19 +17,23 @@ export default function Login() {
     try {
       await api.post('/auth/login', { email, password });
       login();
-      navigate('/watchlist');
+      navigate('/trending');
     } catch (err) {
       setError(err.response?.data || 'Login failed');
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-900 overflow-hidden">
+      <PosterSlider />
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md"
+        className="relative z-10 bg-black/60 backdrop-blur-xl p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/20 text-white"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
+
+        <h2 className="text-3xl font-bold text-center mb-6 text-white drop-shadow-md tracking-wide">
+          Login
+        </h2>
         <input
           type="email"
           placeholder="Email"
