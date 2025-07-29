@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/cinescope/static/css/main.e9100abd.css",
-    "main.js": "/cinescope/static/js/main.a5aaf176.js",
-    "index.html": "/cinescope/index.html",
-    "main.e9100abd.css.map": "/cinescope/static/css/main.e9100abd.css.map",
-    "main.a5aaf176.js.map": "/cinescope/static/js/main.a5aaf176.js.map"
+    "main.css": "/movie-frontend/static/css/main.e9100abd.css",
+    "main.js": "/movie-frontend/static/js/main.73916701.js",
+    "index.html": "/movie-frontend/index.html",
+    "main.e9100abd.css.map": "/movie-frontend/static/css/main.e9100abd.css.map",
+    "main.73916701.js.map": "/movie-frontend/static/js/main.73916701.js.map"
   },
   "entrypoints": [
     "static/css/main.e9100abd.css",
-    "static/js/main.a5aaf176.js"
+    "static/js/main.73916701.js"
   ]
 }
