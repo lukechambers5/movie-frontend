@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/cinescope-frontend/static/css/main.e9100abd.css",
+    "main.js": "/cinescope-frontend/static/js/main.5e47e0fb.js",
+    "index.html": "/cinescope-frontend/index.html",
+    "main.e9100abd.css.map": "/cinescope-frontend/static/css/main.e9100abd.css.map",
+    "main.5e47e0fb.js.map": "/cinescope-frontend/static/js/main.5e47e0fb.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e9100abd.css",
+    "static/js/main.5e47e0fb.js"
+  ]
+}
