@@ -18,7 +18,6 @@ export default function Watchlist() {
   const [searching, setSearching] = useState(false);
   const [addingId, setAddingId] = useState(null);
   const [expandedMovieId, setExpandedMovieId] = useState(null);
-  console.log("authenticated:", authenticated, "| loading:", loading);
 
   useEffect(() => {
     if (!loading && !authenticated) {

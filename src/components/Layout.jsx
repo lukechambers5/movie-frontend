@@ -22,6 +22,9 @@ export default function Layout({ children }) {
           <Link to="/watchlist" className={isActive("/watchlist")}>
             My Watchlist
           </Link>
+          <Link to="/suggested" className={isActive("/suggested")}>
+            Suggested
+          </Link>
           {authenticated && (
             <button
               onClick={logout}

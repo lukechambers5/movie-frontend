@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Watchlist from './pages/Watchlist';
 import Trending from './pages/Trending';
 import Layout from './components/Layout';
+import Suggested from './pages/Suggested';
 
 function PrivateRoute({ children }) {
   const { authenticated, loading } = useContext(AuthContext);
@@ -38,6 +39,16 @@ export default function App() {
               <PrivateRoute>
                 <Layout>
                   <Watchlist />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/suggested"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Suggested />
                 </Layout>
               </PrivateRoute>
             }

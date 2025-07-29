@@ -1,6 +1,5 @@
-// src/pages/Trending.jsx
 import React, { useEffect, useState } from 'react';
-import api from '../services/api'; // Axios instance with baseURL set
+import api from '../services/api'; 
 
 export default function Trending() {
   const [trending, setTrending] = useState([]);
@@ -10,7 +9,6 @@ export default function Trending() {
     async function fetchTrending() {
       try {
         const res = await api.get('/trending');
-        console.log(res.data.results);
         setTrending(res.data.results || []); 
       } catch (err) {
         console.error('Failed to fetch trending movies:', err);
