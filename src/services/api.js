@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
+  baseURL: 'https://3.141.14.26.sslip.io',
   withCredentials: true,
 });
+
 
 export default api;
