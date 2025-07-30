@@ -12,7 +12,15 @@ The frontend of **CineScope**, a movie watchlist and recommendation platform. Bu
 
 ## 🌐 Live Site
 
-**URL:** [https://lukechambers5.github.io/movie-frontend](https://lukechambers5.github.io/movie-frontend)
+### 🔗 Website  (Deployed)
+**URL:**  
+[**🔵 https://lukechambers5.github.io/movie-frontend**](https://lukechambers5.github.io/movie-frontend)
+
+---
+
+### Backend GitHub Repository  
+[➡️ github.com/lukechambers5/movie-watchlist](https://github.com/lukechambers5/movie-watchlist)
+
 
 ---
 
